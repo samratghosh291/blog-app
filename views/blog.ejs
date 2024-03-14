@@ -3,6 +3,23 @@
 <head>
     <%- include('./partials/head') %>
     <title>Blog Page</title>
+    <script>
+        function speak(text) {
+    // Limit text length to improve efficiency
+    const maxLength = 1000; // Adjust as needed
+    text = text.substring(0, maxLength);
+
+    // Remove HTML tags
+    text = text.replace(/(<([^>]+)>)/gi, '');
+
+    // Create a new instance of SpeechSynthesisUtterance
+    var utterance = new SpeechSynthesisUtterance(text);
+
+    // Speak the text
+    window.speechSynthesis.speak(utterance);
+}
+
+    </script>
 </head>
 <body>
     <%- include('./partials/nav'); %>
@@ -11,6 +28,8 @@
         <h1><%= blog.title %></h1>
         <img src="<%= blog.coverImageURL %>" alt="" width="300px" height="500px">
         <pre class="mt-3" style="white-space: pre-wrap;"><%= blog.body %></pre>
+        <!-- Add a button to speak the blog content -->
+        <!-- <button onclick="speak('<%= blog.title %> <%= blog.body %>')" class="btn btn-primary">Speak Blog Content</button> -->
     </div>
 
     <div class="container mt-4">
@@ -27,6 +46,8 @@
                 <img src="<%= comment.createdBy.profileImageURL %>" alt="helloo" width="50px">
                 <%= comment.createdBy.fullName %>:
                 <pre><%= comment.content %></pre>
+                <!-- Add a button to speak each comment -->
+                <!-- <button onclick="speak('<%= comment.createdBy.fullName %> says <%= comment.content %>')" class="btn btn-secondary">Speak Comment</button> -->
             </div>
         <% }) %>
 

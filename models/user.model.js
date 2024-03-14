@@ -1,7 +1,8 @@
 const { Schema, model } = require('mongoose');
-const { randomBytes, createHmac } = require('crypto'); // Correct import
+const { randomBytes, createHmac } = require('crypto');
 const { createTokenForUser } = require('../services/auth');
-
+const fs = require('fs');
+const path = require('path');
 
 const userSchema = new Schema({
   fullName: {
@@ -22,7 +23,7 @@ const userSchema = new Schema({
   },
   profileImageURL: {
     type: String,
-    default: "/image/user_default.png",
+    default: "/image/user_default.png",  
   },
   role: {
     type: String,
@@ -75,6 +76,29 @@ userSchema.statics.matchPasswordAndGenerateToken = async function (email, passwo
         throw new Error('Authentication failed. Please try again.');
     }
 };
+
+// Function to fetch all image URLs from /image folder
+const fetchProfileImageURLs = () => {
+    const imageDirectory = path.join(__dirname, '..', 'public', 'image');
+    console.log('imageDirectory:', imageDirectory); // for debugging
+    const imageFiles = fs.readdirSync(imageDirectory);
+    return imageFiles.map(file => `/image/${file}`);
+};
+
+// Function to randomly select an image URL
+const getRandomImageURL = () => {
+    const imageUrls = fetchProfileImageURLs();
+    const randomIndex = Math.floor(Math.random() * imageUrls.length);
+    return imageUrls[randomIndex];
+};
+
+// Hook to set a random profile image URL before saving a new user
+userSchema.pre('save', function(next) {
+    if (!this.profileImageURL || this.profileImageURL === '/image/user_default.png') {
+        this.profileImageURL = getRandomImageURL();
+    }
+    next();
+});
 
 const User = model("user", userSchema);
 
